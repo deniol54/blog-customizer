@@ -1,6 +1,6 @@
 import { ArrowButton } from 'components/arrow-button';
 import { Button } from 'components/button';
-import { useState, useRef } from 'react';
+import { useState, useRef, FormEvent } from 'react';
 import styles from './ArticleParamsForm.module.scss';
 import clsx from 'clsx';
 import {
@@ -27,10 +27,14 @@ export const ArticleParamsForm = ({
 	articleState,
 	setArticleState,
 }: articleParamsFormPros) => {
-	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [isMenuOpen, setisMenuOpen] = useState<boolean>(false);
 	const rootRef = useRef<HTMLDivElement>(null);
 
-	useOutsideClickClose({ isOpen, onChange: setIsOpen, rootRef });
+	useOutsideClickClose({
+		isOpen: isMenuOpen,
+		onChange: setisMenuOpen,
+		rootRef,
+	});
 
 	const [font, setFont] = useState(articleState.fontFamilyOption);
 	const [fontSize, setFontSize] = useState(articleState.fontSizeOption);
@@ -49,7 +53,7 @@ export const ArticleParamsForm = ({
 		setArticleState(defaultArticleState);
 	};
 
-	const submit = () => {
+	const submit = (event: FormEvent) => {
 		setArticleState({
 			fontFamilyOption: font,
 			fontColor: fontColor,
@@ -57,17 +61,21 @@ export const ArticleParamsForm = ({
 			fontSizeOption: fontSize,
 			contentWidth: contentWidth,
 		});
+		event.preventDefault();
 	};
 
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} setIsOpen={() => setIsOpen(!isOpen)} />
+			<ArrowButton
+				isOpen={isMenuOpen}
+				setIsOpen={() => setisMenuOpen(!isMenuOpen)}
+			/>
 			<aside
 				ref={rootRef}
-				className={clsx(styles.container, { [styles.container_open]: isOpen })}>
-				<form
-					className={styles.form}
-					onSubmit={(event) => event.preventDefault()}>
+				className={clsx(styles.container, {
+					[styles.container_open]: isMenuOpen,
+				})}>
+				<form className={styles.form} onSubmit={submit}>
 					<Text as='h2' size={31} weight={800} uppercase>
 						задайте параметры
 					</Text>
@@ -105,7 +113,7 @@ export const ArticleParamsForm = ({
 					/>
 					<div className={styles.bottomContainer}>
 						<Button title='Сбросить' type='reset' onClick={reset} />
-						<Button title='Применить' type='submit' onClick={submit} />
+						<Button title='Применить' type='submit' />
 					</div>
 				</form>
 			</aside>
